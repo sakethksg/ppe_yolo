@@ -1,1 +1,1135 @@
-{"openapi":"3.1.0","info":{"title":"PPE Detection API - Enhanced","description":"Advanced API for detecting Personal Protective Equipment with analytics and compliance checking","contact":{"name":"PPE Detection API","email":"support@example.com"},"license":{"name":"MIT"},"version":"2.0.0"},"paths":{"/":{"get":{"summary":"Root","description":"Root endpoint with API information","operationId":"root__get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}}}}},"/health":{"get":{"summary":"Health Check","description":"Health check endpoint","operationId":"health_check_health_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}}}}},"/model-info":{"get":{"summary":"Model Info","description":"Get model information","operationId":"model_info_model_info_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}}}}},"/predict":{"post":{"summary":"Predict","description":"Detect PPE in uploaded image with enhanced metadata and optional compliance check","operationId":"predict_predict_post","parameters":[{"name":"conf_threshold","in":"query","required":false,"schema":{"type":"number","maximum":1.0,"minimum":0.0,"description":"Confidence threshold","default":0.25,"title":"Conf Threshold"},"description":"Confidence threshold"},{"name":"check_compliance_flag","in":"query","required":false,"schema":{"type":"boolean","description":"Check PPE compliance","default":false,"title":"Check Compliance Flag"},"description":"Check PPE compliance"}],"requestBody":{"required":true,"content":{"multipart/form-data":{"schema":{"$ref":"#/components/schemas/Body_predict_predict_post"}}}},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionResponse"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/predict-image":{"post":{"summary":"Predict Image","description":"Detect PPE and return annotated image","operationId":"predict_image_predict_image_post","parameters":[{"name":"conf_threshold","in":"query","required":false,"schema":{"type":"number","maximum":1.0,"minimum":0.0,"default":0.25,"title":"Conf Threshold"}}],"requestBody":{"required":true,"content":{"multipart/form-data":{"schema":{"$ref":"#/components/schemas/Body_predict_image_predict_image_post"}}}},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/predict-batch":{"post":{"summary":"Predict Batch","description":"Process multiple images in batch","operationId":"predict_batch_predict_batch_post","parameters":[{"name":"conf_threshold","in":"query","required":false,"schema":{"type":"number","maximum":1.0,"minimum":0.0,"default":0.25,"title":"Conf Threshold"}},{"name":"check_compliance_flag","in":"query","required":false,"schema":{"type":"boolean","description":"Check PPE compliance","default":false,"title":"Check Compliance Flag"},"description":"Check PPE compliance"}],"requestBody":{"required":true,"content":{"multipart/form-data":{"schema":{"$ref":"#/components/schemas/Body_predict_batch_predict_batch_post"}}}},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/BatchPredictionResponse"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/check-compliance":{"post":{"summary":"Check Compliance Endpoint","description":"Check if persons in the image are wearing required PPE","operationId":"check_compliance_endpoint_check_compliance_post","parameters":[{"name":"conf_threshold","in":"query","required":false,"schema":{"type":"number","maximum":1.0,"minimum":0.0,"default":0.25,"title":"Conf Threshold"}}],"requestBody":{"required":true,"content":{"multipart/form-data":{"schema":{"$ref":"#/components/schemas/Body_check_compliance_endpoint_check_compliance_post"}}}},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/predict-video":{"post":{"summary":"Predict Video","description":"Process video file frame by frame","operationId":"predict_video_predict_video_post","parameters":[{"name":"conf_threshold","in":"query","required":false,"schema":{"type":"number","maximum":1.0,"minimum":0.0,"default":0.25,"title":"Conf Threshold"}},{"name":"sample_rate","in":"query","required":false,"schema":{"type":"integer","minimum":1,"description":"Process every Nth frame","default":1,"title":"Sample Rate"},"description":"Process every Nth frame"},{"name":"max_frames","in":"query","required":false,"schema":{"type":"integer","minimum":1,"description":"Maximum frames to process","default":300,"title":"Max Frames"},"description":"Maximum frames to process"}],"requestBody":{"required":true,"content":{"multipart/form-data":{"schema":{"$ref":"#/components/schemas/Body_predict_video_predict_video_post"}}}},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/VideoProcessingResponse"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/analytics":{"get":{"summary":"Get Analytics Endpoint","description":"Get detection analytics and statistics","operationId":"get_analytics_endpoint_analytics_get","parameters":[{"name":"days","in":"query","required":false,"schema":{"type":"integer","maximum":365,"minimum":1,"description":"Number of days to analyze","default":7,"title":"Days"},"description":"Number of days to analyze"},{"name":"endpoint","in":"query","required":false,"schema":{"anyOf":[{"type":"string"},{"type":"null"}],"description":"Filter by endpoint","title":"Endpoint"},"description":"Filter by endpoint"}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/AnalyticsResponse"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/recent-detections":{"get":{"summary":"Get Recent Detections Endpoint","description":"Get recent detection records","operationId":"get_recent_detections_endpoint_recent_detections_get","parameters":[{"name":"limit","in":"query","required":false,"schema":{"type":"integer","maximum":100,"minimum":1,"default":10,"title":"Limit"}},{"name":"endpoint","in":"query","required":false,"schema":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Endpoint"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}}},"components":{"schemas":{"AnalyticsResponse":{"properties":{"total_requests":{"type":"integer","title":"Total Requests"},"date_range":{"additionalProperties":{"type":"string"},"type":"object","title":"Date Range"},"summary":{"additionalProperties":true,"type":"object","title":"Summary"},"compliance_statistics":{"additionalProperties":true,"type":"object","title":"Compliance Statistics"},"top_violations":{"items":{"additionalProperties":true,"type":"object"},"type":"array","title":"Top Violations"},"detection_trends":{"items":{"additionalProperties":true,"type":"object"},"type":"array","title":"Detection Trends"},"performance_metrics":{"additionalProperties":true,"type":"object","title":"Performance Metrics"}},"type":"object","required":["total_requests","date_range","summary","compliance_statistics","top_violations","detection_trends","performance_metrics"],"title":"AnalyticsResponse","description":"Response model for analytics endpoint"},"BatchPredictionResponse":{"properties":{"success":{"type":"boolean","title":"Success"},"request_id":{"type":"string","title":"Request Id"},"total_images":{"type":"integer","title":"Total Images"},"processed_images":{"type":"integer","title":"Processed Images"},"failed_images":{"type":"integer","title":"Failed Images"},"results":{"items":{"$ref":"#/components/schemas/PredictionResponse"},"type":"array","title":"Results"},"total_processing_time_ms":{"type":"number","title":"Total Processing Time Ms"},"average_time_per_image_ms":{"type":"number","title":"Average Time Per Image Ms"}},"type":"object","required":["success","request_id","total_images","processed_images","failed_images","results","total_processing_time_ms","average_time_per_image_ms"],"title":"BatchPredictionResponse","description":"Response model for batch prediction"},"Body_check_compliance_endpoint_check_compliance_post":{"properties":{"file":{"type":"string","format":"binary","title":"File"}},"type":"object","required":["file"],"title":"Body_check_compliance_endpoint_check_compliance_post"},"Body_predict_batch_predict_batch_post":{"properties":{"files":{"items":{"type":"string","format":"binary"},"type":"array","title":"Files"}},"type":"object","required":["files"],"title":"Body_predict_batch_predict_batch_post"},"Body_predict_image_predict_image_post":{"properties":{"file":{"type":"string","format":"binary","title":"File"}},"type":"object","required":["file"],"title":"Body_predict_image_predict_image_post"},"Body_predict_predict_post":{"properties":{"file":{"type":"string","format":"binary","title":"File"}},"type":"object","required":["file"],"title":"Body_predict_predict_post"},"Body_predict_video_predict_video_post":{"properties":{"file":{"type":"string","format":"binary","title":"File"}},"type":"object","required":["file"],"title":"Body_predict_video_predict_video_post"},"BoundingBox":{"properties":{"x1":{"type":"number","title":"X1","description":"Top-left x coordinate"},"y1":{"type":"number","title":"Y1","description":"Top-left y coordinate"},"x2":{"type":"number","title":"X2","description":"Bottom-right x coordinate"},"y2":{"type":"number","title":"Y2","description":"Bottom-right y coordinate"}},"type":"object","required":["x1","y1","x2","y2"],"title":"BoundingBox","description":"Bounding box coordinates"},"ComplianceStatus":{"properties":{"is_compliant":{"type":"boolean","title":"Is Compliant"},"message":{"type":"string","title":"Message"},"details":{"additionalProperties":true,"type":"object","title":"Details"},"violations":{"items":{"type":"string"},"type":"array","title":"Violations","default":[]},"warnings":{"items":{"type":"string"},"type":"array","title":"Warnings","default":[]}},"type":"object","required":["is_compliant","message","details"],"title":"ComplianceStatus","description":"Safety compliance check result"},"Detection":{"properties":{"class_id":{"type":"integer","title":"Class Id","description":"Class ID (0: person, 1: helmet, 2: safety-vest)"},"class_name":{"type":"string","title":"Class Name","description":"Class name"},"confidence":{"type":"number","maximum":1.0,"minimum":0.0,"title":"Confidence","description":"Detection confidence score"},"bounding_box":{"$ref":"#/components/schemas/BoundingBox"},"area":{"type":"number","title":"Area","description":"Bounding box area in pixels"}},"type":"object","required":["class_id","class_name","confidence","bounding_box","area"],"title":"Detection","description":"Single detection result","example":{"area":120060.0,"bounding_box":{"x1":150.5,"x2":450.2,"y1":200.3,"y2":600.8},"class_id":0,"class_name":"person","confidence":0.923}},"DetectionSummary":{"properties":{"person":{"type":"integer","title":"Person","default":0},"helmet":{"type":"integer","title":"Helmet","default":0},"safety-vest":{"type":"integer","title":"Safety-Vest","default":0}},"type":"object","title":"DetectionSummary","description":"Summary of detections by class"},"HTTPValidationError":{"properties":{"detail":{"items":{"$ref":"#/components/schemas/ValidationError"},"type":"array","title":"Detail"}},"type":"object","title":"HTTPValidationError"},"ImageMetadata":{"properties":{"filename":{"type":"string","title":"Filename"},"width":{"type":"integer","title":"Width"},"height":{"type":"integer","title":"Height"},"size_kb":{"type":"number","title":"Size Kb"},"format":{"type":"string","title":"Format"}},"type":"object","required":["filename","width","height","size_kb","format"],"title":"ImageMetadata","description":"Image metadata information"},"PredictionResponse":{"properties":{"success":{"type":"boolean","title":"Success"},"request_id":{"type":"string","title":"Request Id"},"metadata":{"$ref":"#/components/schemas/ImageMetadata"},"detections_count":{"type":"integer","title":"Detections Count"},"detections":{"items":{"$ref":"#/components/schemas/Detection"},"type":"array","title":"Detections"},"summary":{"$ref":"#/components/schemas/DetectionSummary"},"confidence_threshold":{"type":"number","title":"Confidence Threshold"},"metrics":{"$ref":"#/components/schemas/ProcessingMetrics"},"compliance":{"anyOf":[{"$ref":"#/components/schemas/ComplianceStatus"},{"type":"null"}]}},"type":"object","required":["success","request_id","metadata","detections_count","detections","summary","confidence_threshold","metrics"],"title":"PredictionResponse","description":"Response model for single image prediction","example":{"confidence_threshold":0.25,"detections":[],"detections_count":3,"metadata":{"filename":"test.jpg","format":"JPEG","height":1080,"size_kb":245.3,"width":1920},"metrics":{"processing_time_ms":123.45,"request_id":"req_abc123xyz","timestamp":"2025-10-29T12:00:00"},"request_id":"req_abc123xyz","success":true,"summary":{"helmet":2,"person":2,"safety-vest":1}}},"ProcessingMetrics":{"properties":{"processing_time_ms":{"type":"number","title":"Processing Time Ms"},"timestamp":{"type":"string","format":"date-time","title":"Timestamp"},"request_id":{"type":"string","title":"Request Id"}},"type":"object","required":["processing_time_ms","timestamp","request_id"],"title":"ProcessingMetrics","description":"Processing performance metrics"},"ValidationError":{"properties":{"loc":{"items":{"anyOf":[{"type":"string"},{"type":"integer"}]},"type":"array","title":"Location"},"msg":{"type":"string","title":"Message"},"type":{"type":"string","title":"Error Type"}},"type":"object","required":["loc","msg","type"],"title":"ValidationError"},"VideoFrameDetection":{"properties":{"frame_number":{"type":"integer","title":"Frame Number"},"timestamp_seconds":{"type":"number","title":"Timestamp Seconds"},"detections":{"items":{"$ref":"#/components/schemas/Detection"},"type":"array","title":"Detections"},"summary":{"$ref":"#/components/schemas/DetectionSummary"},"is_compliant":{"type":"boolean","title":"Is Compliant"}},"type":"object","required":["frame_number","timestamp_seconds","detections","summary","is_compliant"],"title":"VideoFrameDetection","description":"Detection results for a single video frame"},"VideoProcessingResponse":{"properties":{"success":{"type":"boolean","title":"Success"},"request_id":{"type":"string","title":"Request Id"},"filename":{"type":"string","title":"Filename"},"metadata":{"additionalProperties":true,"type":"object","title":"Metadata"},"total_frames":{"type":"integer","title":"Total Frames"},"processed_frames":{"type":"integer","title":"Processed Frames"},"frame_detections":{"items":{"$ref":"#/components/schemas/VideoFrameDetection"},"type":"array","title":"Frame Detections"},"overall_summary":{"additionalProperties":true,"type":"object","title":"Overall Summary"},"compliance_rate":{"type":"number","title":"Compliance Rate"},"processing_time_seconds":{"type":"number","title":"Processing Time Seconds"}},"type":"object","required":["success","request_id","filename","metadata","total_frames","processed_frames","frame_detections","overall_summary","compliance_rate","processing_time_seconds"],"title":"VideoProcessingResponse","description":"Response model for video processing"}}}}
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "PPE Detection API - Enhanced",
+    "description": "Advanced API for detecting Personal Protective Equipment with analytics and compliance checking",
+    "contact": {
+      "name": "PPE Detection API",
+      "email": "support@example.com"
+    },
+    "license": {
+      "name": "MIT"
+    },
+    "version": "2.0.0"
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Root",
+        "description": "Root endpoint with API information",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health Check",
+        "description": "Health check endpoint",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/model-info": {
+      "get": {
+        "summary": "Model Info",
+        "description": "Get model information",
+        "operationId": "model_info_model_info_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/predict": {
+      "post": {
+        "summary": "Predict",
+        "description": "Detect PPE in uploaded image with enhanced metadata and optional compliance check",
+        "operationId": "predict_predict_post",
+        "parameters": [
+          {
+            "name": "conf_threshold",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 1,
+              "minimum": 0,
+              "description": "Confidence threshold",
+              "default": 0.25,
+              "title": "Conf Threshold"
+            },
+            "description": "Confidence threshold"
+          },
+          {
+            "name": "check_compliance_flag",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Check PPE compliance",
+              "default": false,
+              "title": "Check Compliance Flag"
+            },
+            "description": "Check PPE compliance"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_predict_predict_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PredictionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/predict-image": {
+      "post": {
+        "summary": "Predict Image",
+        "description": "Detect PPE and return annotated image",
+        "operationId": "predict_image_predict_image_post",
+        "parameters": [
+          {
+            "name": "conf_threshold",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 1,
+              "minimum": 0,
+              "default": 0.25,
+              "title": "Conf Threshold"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_predict_image_predict_image_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/predict-batch": {
+      "post": {
+        "summary": "Predict Batch",
+        "description": "Process multiple images in batch",
+        "operationId": "predict_batch_predict_batch_post",
+        "parameters": [
+          {
+            "name": "conf_threshold",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 1,
+              "minimum": 0,
+              "default": 0.25,
+              "title": "Conf Threshold"
+            }
+          },
+          {
+            "name": "check_compliance_flag",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Check PPE compliance",
+              "default": false,
+              "title": "Check Compliance Flag"
+            },
+            "description": "Check PPE compliance"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_predict_batch_predict_batch_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchPredictionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/check-compliance": {
+      "post": {
+        "summary": "Check Compliance Endpoint",
+        "description": "Check if persons in the image are wearing required PPE",
+        "operationId": "check_compliance_endpoint_check_compliance_post",
+        "parameters": [
+          {
+            "name": "conf_threshold",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 1,
+              "minimum": 0,
+              "default": 0.25,
+              "title": "Conf Threshold"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_check_compliance_endpoint_check_compliance_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/predict-video": {
+      "post": {
+        "summary": "Predict Video",
+        "description": "Process video file frame by frame",
+        "operationId": "predict_video_predict_video_post",
+        "parameters": [
+          {
+            "name": "conf_threshold",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 1,
+              "minimum": 0,
+              "default": 0.25,
+              "title": "Conf Threshold"
+            }
+          },
+          {
+            "name": "sample_rate",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Process every Nth frame",
+              "default": 1,
+              "title": "Sample Rate"
+            },
+            "description": "Process every Nth frame"
+          },
+          {
+            "name": "max_frames",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Maximum frames to process",
+              "default": 300,
+              "title": "Max Frames"
+            },
+            "description": "Maximum frames to process"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_predict_video_predict_video_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoProcessingResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analytics": {
+      "get": {
+        "summary": "Get Analytics Endpoint",
+        "description": "Get detection analytics and statistics",
+        "operationId": "get_analytics_endpoint_analytics_get",
+        "parameters": [
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 365,
+              "minimum": 1,
+              "description": "Number of days to analyze",
+              "default": 7,
+              "title": "Days"
+            },
+            "description": "Number of days to analyze"
+          },
+          {
+            "name": "endpoint",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by endpoint",
+              "title": "Endpoint"
+            },
+            "description": "Filter by endpoint"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyticsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/recent-detections": {
+      "get": {
+        "summary": "Get Recent Detections Endpoint",
+        "description": "Get recent detection records",
+        "operationId": "get_recent_detections_endpoint_recent_detections_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 10,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "endpoint",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Endpoint"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AnalyticsResponse": {
+        "properties": {
+          "total_requests": {
+            "type": "integer",
+            "title": "Total Requests"
+          },
+          "date_range": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Date Range"
+          },
+          "summary": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Summary"
+          },
+          "compliance_statistics": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Compliance Statistics"
+          },
+          "top_violations": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Top Violations"
+          },
+          "detection_trends": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Detection Trends"
+          },
+          "performance_metrics": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Performance Metrics"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_requests",
+          "date_range",
+          "summary",
+          "compliance_statistics",
+          "top_violations",
+          "detection_trends",
+          "performance_metrics"
+        ],
+        "title": "AnalyticsResponse",
+        "description": "Response model for analytics endpoint"
+      },
+      "BatchPredictionResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success"
+          },
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          },
+          "total_images": {
+            "type": "integer",
+            "title": "Total Images"
+          },
+          "processed_images": {
+            "type": "integer",
+            "title": "Processed Images"
+          },
+          "failed_images": {
+            "type": "integer",
+            "title": "Failed Images"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/PredictionResponse"
+            },
+            "type": "array",
+            "title": "Results"
+          },
+          "total_processing_time_ms": {
+            "type": "number",
+            "title": "Total Processing Time Ms"
+          },
+          "average_time_per_image_ms": {
+            "type": "number",
+            "title": "Average Time Per Image Ms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "success",
+          "request_id",
+          "total_images",
+          "processed_images",
+          "failed_images",
+          "results",
+          "total_processing_time_ms",
+          "average_time_per_image_ms"
+        ],
+        "title": "BatchPredictionResponse",
+        "description": "Response model for batch prediction"
+      },
+      "Body_check_compliance_endpoint_check_compliance_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_check_compliance_endpoint_check_compliance_post"
+      },
+      "Body_predict_batch_predict_batch_post": {
+        "properties": {
+          "files": {
+            "items": {
+              "type": "string",
+              "format": "binary"
+            },
+            "type": "array",
+            "title": "Files"
+          }
+        },
+        "type": "object",
+        "required": [
+          "files"
+        ],
+        "title": "Body_predict_batch_predict_batch_post"
+      },
+      "Body_predict_image_predict_image_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_predict_image_predict_image_post"
+      },
+      "Body_predict_predict_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_predict_predict_post"
+      },
+      "Body_predict_video_predict_video_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_predict_video_predict_video_post"
+      },
+      "BoundingBox": {
+        "properties": {
+          "x1": {
+            "type": "number",
+            "title": "X1",
+            "description": "Top-left x coordinate"
+          },
+          "y1": {
+            "type": "number",
+            "title": "Y1",
+            "description": "Top-left y coordinate"
+          },
+          "x2": {
+            "type": "number",
+            "title": "X2",
+            "description": "Bottom-right x coordinate"
+          },
+          "y2": {
+            "type": "number",
+            "title": "Y2",
+            "description": "Bottom-right y coordinate"
+          }
+        },
+        "type": "object",
+        "required": [
+          "x1",
+          "y1",
+          "x2",
+          "y2"
+        ],
+        "title": "BoundingBox",
+        "description": "Bounding box coordinates"
+      },
+      "ComplianceStatus": {
+        "properties": {
+          "is_compliant": {
+            "type": "boolean",
+            "title": "Is Compliant"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "details": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Details"
+          },
+          "violations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Violations",
+            "default": []
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "is_compliant",
+          "message",
+          "details"
+        ],
+        "title": "ComplianceStatus",
+        "description": "Safety compliance check result"
+      },
+      "Detection": {
+        "properties": {
+          "class_id": {
+            "type": "integer",
+            "title": "Class Id",
+            "description": "Class ID (0: person, 1: helmet, 2: safety-vest)"
+          },
+          "class_name": {
+            "type": "string",
+            "title": "Class Name",
+            "description": "Class name"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1,
+            "minimum": 0,
+            "title": "Confidence",
+            "description": "Detection confidence score"
+          },
+          "bounding_box": {
+            "$ref": "#/components/schemas/BoundingBox"
+          },
+          "area": {
+            "type": "number",
+            "title": "Area",
+            "description": "Bounding box area in pixels"
+          }
+        },
+        "type": "object",
+        "required": [
+          "class_id",
+          "class_name",
+          "confidence",
+          "bounding_box",
+          "area"
+        ],
+        "title": "Detection",
+        "description": "Single detection result",
+        "example": {
+          "area": 120060,
+          "bounding_box": {
+            "x1": 150.5,
+            "x2": 450.2,
+            "y1": 200.3,
+            "y2": 600.8
+          },
+          "class_id": 0,
+          "class_name": "person",
+          "confidence": 0.923
+        }
+      },
+      "DetectionSummary": {
+        "properties": {
+          "person": {
+            "type": "integer",
+            "title": "Person",
+            "default": 0
+          },
+          "helmet": {
+            "type": "integer",
+            "title": "Helmet",
+            "default": 0
+          },
+          "safety-vest": {
+            "type": "integer",
+            "title": "Safety-Vest",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "DetectionSummary",
+        "description": "Summary of detections by class"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ImageMetadata": {
+        "properties": {
+          "filename": {
+            "type": "string",
+            "title": "Filename"
+          },
+          "width": {
+            "type": "integer",
+            "title": "Width"
+          },
+          "height": {
+            "type": "integer",
+            "title": "Height"
+          },
+          "size_kb": {
+            "type": "number",
+            "title": "Size Kb"
+          },
+          "format": {
+            "type": "string",
+            "title": "Format"
+          }
+        },
+        "type": "object",
+        "required": [
+          "filename",
+          "width",
+          "height",
+          "size_kb",
+          "format"
+        ],
+        "title": "ImageMetadata",
+        "description": "Image metadata information"
+      },
+      "PredictionResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success"
+          },
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/ImageMetadata"
+          },
+          "detections_count": {
+            "type": "integer",
+            "title": "Detections Count"
+          },
+          "detections": {
+            "items": {
+              "$ref": "#/components/schemas/Detection"
+            },
+            "type": "array",
+            "title": "Detections"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/DetectionSummary"
+          },
+          "confidence_threshold": {
+            "type": "number",
+            "title": "Confidence Threshold"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/ProcessingMetrics"
+          },
+          "compliance": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ComplianceStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "success",
+          "request_id",
+          "metadata",
+          "detections_count",
+          "detections",
+          "summary",
+          "confidence_threshold",
+          "metrics"
+        ],
+        "title": "PredictionResponse",
+        "description": "Response model for single image prediction",
+        "example": {
+          "confidence_threshold": 0.25,
+          "detections": [],
+          "detections_count": 3,
+          "metadata": {
+            "filename": "test.jpg",
+            "format": "JPEG",
+            "height": 1080,
+            "size_kb": 245.3,
+            "width": 1920
+          },
+          "metrics": {
+            "processing_time_ms": 123.45,
+            "request_id": "req_abc123xyz",
+            "timestamp": "2025-10-29T12:00:00"
+          },
+          "request_id": "req_abc123xyz",
+          "success": true,
+          "summary": {
+            "helmet": 2,
+            "person": 2,
+            "safety-vest": 1
+          }
+        }
+      },
+      "ProcessingMetrics": {
+        "properties": {
+          "processing_time_ms": {
+            "type": "number",
+            "title": "Processing Time Ms"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp"
+          },
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "processing_time_ms",
+          "timestamp",
+          "request_id"
+        ],
+        "title": "ProcessingMetrics",
+        "description": "Processing performance metrics"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "VideoFrameDetection": {
+        "properties": {
+          "frame_number": {
+            "type": "integer",
+            "title": "Frame Number"
+          },
+          "timestamp_seconds": {
+            "type": "number",
+            "title": "Timestamp Seconds"
+          },
+          "detections": {
+            "items": {
+              "$ref": "#/components/schemas/Detection"
+            },
+            "type": "array",
+            "title": "Detections"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/DetectionSummary"
+          },
+          "is_compliant": {
+            "type": "boolean",
+            "title": "Is Compliant"
+          }
+        },
+        "type": "object",
+        "required": [
+          "frame_number",
+          "timestamp_seconds",
+          "detections",
+          "summary",
+          "is_compliant"
+        ],
+        "title": "VideoFrameDetection",
+        "description": "Detection results for a single video frame"
+      },
+      "VideoProcessingResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success"
+          },
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          },
+          "filename": {
+            "type": "string",
+            "title": "Filename"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata"
+          },
+          "total_frames": {
+            "type": "integer",
+            "title": "Total Frames"
+          },
+          "processed_frames": {
+            "type": "integer",
+            "title": "Processed Frames"
+          },
+          "frame_detections": {
+            "items": {
+              "$ref": "#/components/schemas/VideoFrameDetection"
+            },
+            "type": "array",
+            "title": "Frame Detections"
+          },
+          "overall_summary": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Overall Summary"
+          },
+          "compliance_rate": {
+            "type": "number",
+            "title": "Compliance Rate"
+          },
+          "processing_time_seconds": {
+            "type": "number",
+            "title": "Processing Time Seconds"
+          }
+        },
+        "type": "object",
+        "required": [
+          "success",
+          "request_id",
+          "filename",
+          "metadata",
+          "total_frames",
+          "processed_frames",
+          "frame_detections",
+          "overall_summary",
+          "compliance_rate",
+          "processing_time_seconds"
+        ],
+        "title": "VideoProcessingResponse",
+        "description": "Response model for video processing"
+      }
+    }
+  }
+}
