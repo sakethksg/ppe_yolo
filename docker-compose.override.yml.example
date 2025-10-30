@@ -1,0 +1,65 @@
+# docker-compose.override.yml
+# 
+# This file is used for local development customizations.
+# It will automatically be picked up by docker-compose.
+# Copy this file to docker-compose.override.yml and customize as needed.
+#
+# This file is typically ignored in .gitignore to allow each developer
+# to have their own local configuration.
+
+version: '3.8'
+
+services:
+  backend:
+    # Override ports if needed
+    # ports:
+    #   - "8001:8000"
+    
+    # Add additional environment variables
+    environment:
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+    
+    # Add additional volumes for development
+    volumes:
+      - ./backend:/app/backend
+      - ./tests:/app/tests
+    
+    # Override command for hot reload
+    command: uvicorn backend.app:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    # Override ports if needed
+    # ports:
+    #   - "3001:3000"
+    
+    # Add additional environment variables
+    environment:
+      - NODE_ENV=development
+    
+    # Add additional volumes for development
+    volumes:
+      - ./frontend/app:/app/app
+      - ./frontend/components:/app/components
+      - ./frontend/lib:/app/lib
+
+# Add additional services for development
+# services:
+#   # Redis for caching
+#   redis:
+#     image: redis:7-alpine
+#     ports:
+#       - "6379:6379"
+#     networks:
+#       - ppe-network
+#
+#   # pgAdmin for PostgreSQL management
+#   pgadmin:
+#     image: dpage/pgadmin4
+#     environment:
+#       PGADMIN_DEFAULT_EMAIL: admin@ppe.local
+#       PGADMIN_DEFAULT_PASSWORD: admin
+#     ports:
+#       - "5050:80"
+#     networks:
+#       - ppe-network

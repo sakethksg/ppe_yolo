@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
 
   // You can still keep other valid experimental features here if needed
   experimental: {},
+
+  // Enable standalone output for Docker
+  output: 'standalone',
 };
 
 export default nextConfig;

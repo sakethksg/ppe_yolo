@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # Backend API Service (Development)
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: ppe-detection-backend-dev
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app/backend
+      - ./mlsrc:/app/mlsrc
+      - ./output:/app/output
+      - backend-data-dev:/app/data
+    environment:
+      - DATABASE_URL=sqlite:///./data/ppe_detection.db
+      - PYTHONUNBUFFERED=1
+      - RELOAD=true
+    command: uvicorn backend.app:app --host 0.0.0.0 --port 8000 --reload
+    restart: unless-stopped
+    networks:
+      - ppe-network-dev
+
+  # Frontend Web Service (Development)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      target: deps  # Only build up to deps stage for dev
+    container_name: ppe-detection-frontend-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NODE_ENV=development
+    command: npm run dev
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - ppe-network-dev
+
+networks:
+  ppe-network-dev:
+    driver: bridge
+
+volumes:
+  backend-data-dev:
+    driver: local

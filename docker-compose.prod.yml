@@ -1,0 +1,101 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: ppe-detection-db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=ppe_user
+      - POSTGRES_PASSWORD=ppe_password
+      - POSTGRES_DB=ppe_detection
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - ppe-network-prod
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ppe_user -d ppe_detection"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API Service (Production)
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: ppe-detection-backend-prod
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./mlsrc:/app/mlsrc
+      - ./output:/app/output
+    environment:
+      - DATABASE_URL=postgresql://ppe_user:ppe_password@postgres:5432/ppe_detection
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - ppe-network-prod
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend Web Service (Production)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://backend:8000
+    container_name: ppe-detection-frontend-prod
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8000
+      - NODE_ENV=production
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - ppe-network-prod
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: ppe-detection-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - backend
+      - frontend
+    restart: unless-stopped
+    networks:
+      - ppe-network-prod
+
+networks:
+  ppe-network-prod:
+    driver: bridge
+
+volumes:
+  postgres-data:
+    driver: local
